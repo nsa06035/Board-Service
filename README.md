@@ -14,7 +14,7 @@
 제출 방법 
 ------
 - fork한 repository 최신화 방법
-  - git remote add upstream https://github.com/Techeer-Study/2023-Algorithm-study.git (초기 1회만)
+  - git remote add upstream https://github.com/2023-Techeer-Partners-Team-F/Board-Service.git (초기 1회만)
   - git remote -v ( 연결 확인 용도 )
 
 
