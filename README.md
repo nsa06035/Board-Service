@@ -22,7 +22,6 @@
 - git merge upstream/main ( 본인 레포에 적용 )
 
 - fork한 저장소의 각 주차에 해당되는 과제 폴더에 소스 코드를 commit 후 push 합니다.
-  - 파일명은 주차_이름으로 합니다. ex) WEEK01_윤정은.java
 
   - commit 메세지는 다음과 같이 합니다. "주차 구현"
 
