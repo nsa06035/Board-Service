@@ -1,10 +1,10 @@
 package board.spring.service;
 
 
-import board.boardspring.domain.Member;
-import board.boardspring.dto.request.MemberLoginRequest;
-import board.boardspring.dto.request.MemberSaveRequest;
-import board.boardspring.repository.MemberRepository;
+import board.spring.domain.Member;
+import board.spring.dto.request.MemberLoginRequest;
+import board.spring.dto.request.MemberSaveRequest;
+import board.spring.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

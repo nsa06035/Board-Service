@@ -1,13 +1,13 @@
 package board.spring.service;
 
 
-import board.boardspring.domain.Board;
-import board.boardspring.domain.Comment;
-import board.boardspring.domain.Member;
-import board.boardspring.dto.request.CommentSaveRequest;
-import board.boardspring.repository.BoardRepository;
-import board.boardspring.repository.CommentRepository;
-import board.boardspring.repository.MemberRepository;
+import board.spring.domain.Board;
+import board.spring.domain.Comment;
+import board.spring.domain.Member;
+import board.spring.dto.request.CommentSaveRequest;
+import board.spring.repository.BoardRepository;
+import board.spring.repository.CommentRepository;
+import board.spring.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

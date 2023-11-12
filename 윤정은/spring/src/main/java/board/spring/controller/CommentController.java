@@ -1,11 +1,11 @@
 package board.spring.controller;
 
 
-import board.boardspring.domain.Comment;
-import board.boardspring.domain.Member;
-import board.boardspring.dto.request.CommentSaveRequest;
-import board.boardspring.service.CommentService;
-import board.boardspring.service.MemberService;
+import board.spring.domain.Comment;
+import board.spring.domain.Member;
+import board.spring.dto.request.CommentSaveRequest;
+import board.spring.service.CommentService;
+import board.spring.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

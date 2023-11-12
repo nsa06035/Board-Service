@@ -1,8 +1,8 @@
 package board.spring.controller;
 
-import board.boardspring.dto.request.MemberLoginRequest;
-import board.boardspring.dto.request.MemberSaveRequest;
-import board.boardspring.service.MemberService;
+import board.spring.dto.request.MemberLoginRequest;
+import board.spring.dto.request.MemberSaveRequest;
+import board.spring.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

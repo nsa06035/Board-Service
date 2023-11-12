@@ -1,6 +1,6 @@
 package board.spring.dto.response;
 
-import board.boardspring.domain.Comment;
+import board.spring.domain.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

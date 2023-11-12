@@ -1,6 +1,6 @@
 package board.spring.repository;
 
-import board.boardspring.domain.Board;
+import board.spring.domain.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

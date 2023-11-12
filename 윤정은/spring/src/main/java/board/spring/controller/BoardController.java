@@ -1,13 +1,13 @@
 package board.spring.controller;
 
 
-import board.boardspring.domain.Board;
-import board.boardspring.domain.Member;
-import board.boardspring.dto.request.BoardSaveRequest;
-import board.boardspring.dto.response.BoardDetailResponse;
-import board.boardspring.dto.response.BoardListResponse;
-import board.boardspring.service.BoardService;
-import board.boardspring.service.MemberService;
+import board.spring.domain.Board;
+import board.spring.domain.Member;
+import board.spring.dto.request.BoardSaveRequest;
+import board.spring.dto.response.BoardDetailResponse;
+import board.spring.dto.response.BoardListResponse;
+import board.spring.service.BoardService;
+import board.spring.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

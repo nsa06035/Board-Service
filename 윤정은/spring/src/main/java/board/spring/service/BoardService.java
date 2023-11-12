@@ -1,17 +1,22 @@
 package board.spring.service;
 
-import board.boardspring.domain.Board;
-import board.boardspring.domain.Member;
-import board.boardspring.dto.request.BoardSaveRequest;
-import board.boardspring.dto.response.BoardDetailResponse;
-import board.boardspring.dto.response.BoardListResponse;
-import board.boardspring.repository.BoardRepository;
-import board.boardspring.repository.MemberRepository;
+import board.spring.domain.Board;
+import board.spring.domain.Member;
+import board.spring.dto.request.BoardSaveRequest;
+import board.spring.dto.response.BoardDetailResponse;
+import board.spring.dto.response.BoardListResponse;
+import board.spring.repository.BoardRepository;
+import board.spring.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +77,7 @@ public class BoardService {
 
     // 게시물 수정
     public void updatePost(Long boardId, BoardSaveRequest request) {
-        Board existingBoard = findBoardById(boardId).orElseThrow(() -> new NotFoundException("Board not found"));
+        Board existingBoard = findBoardById(boardId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
 
         // Update the board post with the new information
         existingBoard.setTitle(request.getTitle());
@@ -88,7 +93,7 @@ public class BoardService {
     // 게시글 삭제
     public void deletePost(Long boardId) {
         // Assuming you have the method to find the board by ID
-        Board existingBoard = findBoardById(boardId).orElseThrow(() -> new NotFoundException("Board not found"));
+        Board existingBoard = findBoardById(boardId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
 
         boardRepository.delete(existingBoard);
     }

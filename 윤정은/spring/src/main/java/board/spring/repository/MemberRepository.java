@@ -1,6 +1,6 @@
 package board.spring.repository;
 
-import board.boardspring.domain.Member;
+import board.spring.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

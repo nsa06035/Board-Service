@@ -1,6 +1,6 @@
 package board.spring.dto.response;
 
-import board.boardspring.domain.Board;
+import board.spring.domain.Board;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

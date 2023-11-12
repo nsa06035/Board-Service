@@ -1,6 +1,6 @@
 package board.spring.dto.request;
 
-import board.boardspring.domain.Member;
+import board.spring.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
