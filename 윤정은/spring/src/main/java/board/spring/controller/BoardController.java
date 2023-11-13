@@ -132,9 +132,8 @@ public class BoardController {
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
 }
