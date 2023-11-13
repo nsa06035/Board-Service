@@ -25,6 +25,7 @@ public class BoardController {
     private final MemberService memberService;
 
     // 게시글 저장 : 게시글은 제목과 내용을 포함한다.
+    ///
     @PostMapping
     public ResponseEntity<Void> saveBoard(@RequestParam Long memberId, @RequestBody BoardSaveRequest request) {
         Optional<Member> optionalMember = memberService.findMemberById(memberId);
