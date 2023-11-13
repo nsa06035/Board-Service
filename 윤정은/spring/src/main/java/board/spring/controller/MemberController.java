@@ -18,25 +18,23 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 회원가입 (post) : 이메일과 비밀번호, 닉네임을 입력 받아 회원가입을 한다.
+    // 회원가입
+    // POST api/members
     @PostMapping
     public ResponseEntity<Void> saveMember(@RequestBody MemberSaveRequest request){
         memberService.saveMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
-
-    // 로그인 (post) : 이메일과 비밀번호를 입력 받아 로그인을 한다.
+    // 로그인
+    // POST api/members/login
     @PostMapping("/login")
     public ResponseEntity<Void> loginMember(@RequestBody MemberLoginRequest request) {
         try {
             memberService.loginMember(request);
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
-            // Handle login failure, you can customize the response based on your requirements
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
 }

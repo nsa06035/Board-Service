@@ -1,6 +1,5 @@
 package board.spring.controller;
 
-
 import board.spring.domain.Board;
 import board.spring.domain.Member;
 import board.spring.dto.request.BoardSaveRequest;
@@ -25,7 +24,7 @@ public class BoardController {
     private final MemberService memberService;
 
     // 게시글 저장 : 게시글은 제목과 내용을 포함한다.
-    ///
+    // POST /api/boards
     @PostMapping
     public ResponseEntity<Void> saveBoard(@RequestParam Long memberId, @RequestBody BoardSaveRequest request) {
         Optional<Member> optionalMember = memberService.findMemberById(memberId);
@@ -36,12 +35,12 @@ public class BoardController {
             request.setMember(loggedInMember);
             boardService.savePost(request);
             return ResponseEntity.status(HttpStatus.CREATED).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     // 게시글 목록 조회 : 전체 게시글 목록 조회
+    // GET /api/boards
     @GetMapping
     public List<BoardListResponse> findBoardList() {
         List<BoardListResponse> responseList = boardService.findBoardList();
@@ -49,25 +48,27 @@ public class BoardController {
     }
 
     // 게시글 제목으로 게시글 목록을 검색
-    @GetMapping("searchByTitle") // Updated mapping value
+    // GET /api/boards?title=A
+    @GetMapping ("/search")
     public List<BoardListResponse> findBoardListByTitle(@RequestParam String title) {
         List<BoardListResponse> responseList = boardService.findBoardListByTitle(title);
         return responseList;
     }
 
     // 게시글 이메일로 검색
-    @GetMapping("/search/emails/{email}")
-    public List<BoardListResponse> findBoardListByEmail(@PathVariable String email) {
+    // GET /api/boards?email=jungeun@naver.com
+    @GetMapping("/search")
+    public List<BoardListResponse> findBoardListByEmail(@RequestParam String email) {
         List<BoardListResponse> responseList = boardService.findPostListByEmail(email);
         return responseList;
     }
 
 
     // 게시글 상세 조회 (제목, 내용, 회원이름, 댓글)을 포함
-    @GetMapping("/search/details/{boardId}")
-    public ResponseEntity<BoardDetailResponse> findBoardDetailList(@PathVariable Long boardId) {
-        // Assuming you have the email information, you need to pass it here.
-        String userEmail = "example@example.com"; // Replace with the actual email information.
+    // GET /api/details?boardId=1
+    @GetMapping("/search/details")
+    public ResponseEntity<BoardDetailResponse> findBoardDetailList(@RequestParam Long boardId) {
+        String userEmail = "example@example.com";
 
         BoardDetailResponse response = boardService.findDetailList(boardId, userEmail);
         return ResponseEntity.ok(response);
@@ -75,7 +76,8 @@ public class BoardController {
 
 
     // 게시글 수정
-    @PutMapping("update")
+    // PUT /api/boards
+    @PutMapping
     public ResponseEntity<Void> updateBoard(@RequestParam Long boardId,
                                             @RequestParam Long memberId,
                                             @RequestBody BoardSaveRequest request) {
@@ -90,25 +92,25 @@ public class BoardController {
                 Board existingBoard = optionalBoard.get();
 
                 if (existingBoard.getMember().equals(loggedInMember)) {
-                    // Update the board post
                     request.setMemberId(memberId);
                     request.setMember(loggedInMember);
                     boardService.updatePost(boardId, request);
                     return ResponseEntity.ok().build();
                 } else {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // User is not the owner of the board
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Board with the given ID not found
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Member not authorized
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
 
     // 게시글 삭제
-    @DeleteMapping("/delete")
+    // DELETE /api/boards
+    @DeleteMapping
     public ResponseEntity<Void> deleteBoard(@RequestParam Long boardId,
                                             @RequestParam Long memberId) {
         Optional<Member> optionalMember = memberService.findMemberById(memberId);
@@ -122,19 +124,17 @@ public class BoardController {
                 Board existingBoard = optionalBoard.get();
 
                 if (existingBoard.getMember().equals(loggedInMember)) {
-                    // Delete the board post
                     boardService.deletePost(boardId);
                     return ResponseEntity.ok().build();
                 } else {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // User is not the owner of the board
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Board with the given ID not found
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Member not authorized
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
 
 }
