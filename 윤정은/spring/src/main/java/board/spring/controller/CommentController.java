@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @RestController
@@ -22,6 +21,7 @@ public class CommentController {
     private final MemberService memberService;
 
     // 댓글 작성
+    // POST /api/comments
     @PostMapping
     public ResponseEntity<Void> createComment(
             @RequestParam Long boardId,
@@ -48,6 +48,7 @@ public class CommentController {
     }
 
     // 댓글 수정
+    // PUT /api/comments
     @PutMapping
     public ResponseEntity<Void> updateComment(
             @RequestParam Long commentId,
@@ -67,15 +68,14 @@ public class CommentController {
 
 
     // 댓글 삭제
+    // DELETE /api/comments
     @DeleteMapping
     public ResponseEntity<Void> deleteComment(@RequestParam Long commentId) {
         Optional<Comment> optionalComment = commentService.findCommentById(commentId);
 
         if (optionalComment.isPresent()) {
-            // Add logic to check if the logged-in member is the author of the comment (for authorization)
 
             commentService.deleteComment(commentId);
-
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
