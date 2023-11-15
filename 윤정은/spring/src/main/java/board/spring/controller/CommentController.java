@@ -1,16 +1,13 @@
 package board.spring.controller;
 
-
-import board.spring.domain.Comment;
-import board.spring.domain.Member;
 import board.spring.dto.request.CommentSaveRequest;
+import board.spring.dto.request.CommentUpdateRequest;
 import board.spring.service.CommentService;
-import board.spring.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,68 +15,35 @@ import java.util.Optional;
 public class CommentController {
 
     private final CommentService commentService;
-    private final MemberService memberService;
 
     // 댓글 작성
     // POST /api/comments
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @RequestParam Long boardId,
-            @RequestParam Long memberId,
+            @Valid @RequestParam Long memberId,
+            @Valid @RequestParam Long boardId,
             @RequestBody CommentSaveRequest request) {
 
-        Optional<Member> optionalMember = memberService.findMemberById(memberId);
-
-        if (optionalMember.isPresent()) {
-            Member loggedInMember = optionalMember.get();
-
-            if (boardId != null) {
-                request.setMember(loggedInMember);
-                request.setBoardId(boardId);
-                commentService.savePost(request);
-
-                return ResponseEntity.status(HttpStatus.CREATED).build();
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        commentService.saveComment(memberId, boardId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // 댓글 수정
-    // PUT /api/comments
-    @PutMapping
+    // PUT /api/comments/1
+    @PutMapping("{commentId}")
     public ResponseEntity<Void> updateComment(
-            @RequestParam Long commentId,
-            @RequestBody CommentSaveRequest request) {
-
-        Optional<Comment> optionalComment = commentService.findCommentById(commentId);
-
-        if (optionalComment.isPresent()) {
-            Comment existingComment = optionalComment.get();
-            String newContent = request.getContent();
-            commentService.updateComment(existingComment, newContent);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+            @PathVariable Long commentId,
+            @RequestBody CommentUpdateRequest request) {
+        commentService.updateComment(request, commentId);
+        return ResponseEntity.ok().build();
     }
 
-
     // 댓글 삭제
-    // DELETE /api/comments
-    @DeleteMapping
-    public ResponseEntity<Void> deleteComment(@RequestParam Long commentId) {
-        Optional<Comment> optionalComment = commentService.findCommentById(commentId);
-
-        if (optionalComment.isPresent()) {
-
-            commentService.deleteComment(commentId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    // DELETE /api/comments/1
+    @DeleteMapping("{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok().build();
     }
 }
 
