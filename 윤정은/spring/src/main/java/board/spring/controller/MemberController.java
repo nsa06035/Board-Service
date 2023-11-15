@@ -30,11 +30,7 @@ public class MemberController {
     // POST api/members/login
     @PostMapping("/login")
     public ResponseEntity<Void> loginMember(@RequestBody MemberLoginRequest request) {
-        try {
-            memberService.loginMember(request);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        memberService.loginMember(request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
