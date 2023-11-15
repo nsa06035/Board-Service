@@ -3,27 +3,30 @@ package board.spring.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.beans.ConstructorProperties;
 
 @Entity
-@Table(name = "comment")
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성 설정
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "comment_id")
     private Long id;
 
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "memberId")
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "boardId")
     private Board board;
+
 
     public Comment(String newContent) {
         this.content = newContent;
@@ -37,5 +40,4 @@ public class Comment {
         this.member = member;
         this.board = board;
     }
-
 }

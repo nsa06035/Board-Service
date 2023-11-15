@@ -1,5 +1,6 @@
 package board.spring.domain;
 
+import board.spring.dto.request.BoardSaveRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity @Getter
+@Entity
+@Getter
 @NoArgsConstructor
 public class Board {
 
@@ -35,12 +37,8 @@ public class Board {
         this.member = member;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
+    public void update(BoardSaveRequest request){
+        this.title = request.getTitle();
     }
 
 }
