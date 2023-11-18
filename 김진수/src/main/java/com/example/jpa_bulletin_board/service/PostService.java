@@ -24,10 +24,12 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
 
+    //memberId dto로 넣어서 전달해보기
     /**
      * 게시글 작성
      */
-    public void savePost(PostSaveRequest postSaveRequest, Long memberId) {
+    public boolean savePost(PostSaveRequest postSaveRequest) {
+        Long memberId = postSaveRequest.getMemberId();
         Optional<Member> findMember = memberRepository.findById(memberId);
 
         if (findMember.isPresent()) {
@@ -36,9 +38,10 @@ public class PostService {
             //toEntity(Member member)로 바꾸면 어떨까?
             //post.setMember(member);
             postRepository.save(post);
-        } else {
-            throw new IllegalArgumentException("ID에 해당하는 회원을 찾을 수 없습니다." + memberId);
+            return true;
         }
+//        throw new IllegalArgumentException("ID에 해당하는 회원을 찾을 수 없습니다." + memberId);
+        return false;
     }
 
     /**
@@ -87,14 +90,16 @@ public class PostService {
         Member findMember = memberRepository.findByEmail(email);
         List<PostListResponse> responseList = new ArrayList<>();
 
-        List<Post> postList = postRepository.findAllListByMemberId(findMember.getId());
+        if (findMember != null) {
+            List<Post> postList = postRepository.findAllListByMemberId(findMember.getId());
 
-        /*return postList.stream()
-                .map(PostListResponse::from)
-                .collect(Collectors.toList());*/
+            /*return postList.stream()
+                    .map(PostListResponse::from)
+                    .collect(Collectors.toList());*/
 
-        for (Post post : postList) {
-            responseList.add(PostListResponse.from(post));
+            for (Post post : postList) {
+                responseList.add(PostListResponse.from(post));
+            }
         }
 
         return responseList;
@@ -112,4 +117,19 @@ public class PostService {
         throw new IllegalArgumentException("ID에 해당하는 포스트를 찾을 수 없습니다: " + postId);
     }
 
+    /**
+     * 제목으로 게시글 목록 조회 + 특정 회원이 작성한 게시글 목록 조회
+     */
+    public List<PostListResponse> findPostListByEmailAndTitle(String email, String title) {
+        Member findMember = memberRepository.findByEmail(email);
+        List<PostListResponse> responseList = new ArrayList<>();
+
+        List<Post> postList = postRepository.findByMemberIdAndTitleContaining(findMember.getId(), title);
+
+        for (Post post : postList) {
+            responseList.add(PostListResponse.from(post));
+        }
+
+        return responseList;
+    }
 }

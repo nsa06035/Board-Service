@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class PostSaveRequest {
     private String title;
     private String content;
+    private Long memberId;
 
     public Post toEntity(Member member) {
         return new Post(title, content, member);
