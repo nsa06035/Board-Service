@@ -1,13 +1,12 @@
 package board.boradservice.repository;
 
-import jakarta.persistence.EntityManager;
+
+import board.boradservice.domian.Comment;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import techeerpartners.TecheerPartnersBoardProject.domian.Board;
-import techeerpartners.TecheerPartnersBoardProject.domian.Comment;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
+
 
 @Repository
 //@RequiredArgsConstructor

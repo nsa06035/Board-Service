@@ -1,16 +1,19 @@
 package board.boradservice.service;
 
+import board.boradservice.domian.Board;
+import board.boradservice.domian.Member;
+import board.boradservice.dto.request.BoardSaveRequestDTO;
+import board.boradservice.dto.response.BoardGetDetailResponseDTO;
+import board.boradservice.dto.response.BoardListResponseDTO;
+import board.boradservice.dto.response.BoardPostResponseDTO;
+import board.boradservice.repository.BoardRepository;
+import board.boradservice.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import techeerpartners.TecheerPartnersBoardProject.domian.Board;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
-import techeerpartners.TecheerPartnersBoardProject.dto.request.BoardSaveRequestDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardPostResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardListResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardGetDetailResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.repository.BoardRepository;
-import techeerpartners.TecheerPartnersBoardProject.repository.MemberRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class BoardService {
 
@@ -29,81 +33,44 @@ public class BoardService {
     /**
      * 게시글 생성
      */
-    public void createPost(String memberEmail, BoardSaveRequestDTO boardSaveRequestDTO) {
-        // 로그인 상태라면
-        if (validationLogin(memberEmail)) {
-            // 세션에 저장된 memberId를 이용하여 회원(Member) 객체를 찾음
-            Member member = memberService.findMemberByEmail(memberEmail);
+    public void createPost(BoardSaveRequestDTO boardSaveRequestDTO) {
+        Member member = memberService
+                .findMemberById(boardSaveRequestDTO.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID 입니다."));
 
-            // BoardPostDTO에 회원 객체를 설정
-            BoardPostResponseDTO boardPostResponseDTO = new BoardPostResponseDTO();
-            boardPostResponseDTO.setMember(member);
-            boardPostResponseDTO.setBoardTitle(boardSaveRequestDTO.getBoardTitle());
-            boardPostResponseDTO.setBoardContext(boardSaveRequestDTO.getBoardContext());
+        BoardPostResponseDTO boardPostResponseDTO = new BoardPostResponseDTO(boardSaveRequestDTO.getBoardTitle(), boardSaveRequestDTO.getBoardContext(), member);
+        // toBoardForSave부분 Mapper로 교체
+        Board board = boardPostResponseDTO.toBoardForSave(boardPostResponseDTO);
 
-            Board board = boardPostResponseDTO.toBoardForSave(boardPostResponseDTO);
-
-            boardRepository.save(board);
-        } else { // 로그아웃 상태라면
-            throw new IllegalArgumentException("로그인을 해주세요.");
-        }
+        boardRepository.save(board);
     }
 
     /**
      * 게시글 수정
      */
-    public void updatePost(String memberEmail, Long boardId, BoardSaveRequestDTO boardSaveRequestDTO) {
-        // 로그인 상태라면
-        if (validationLogin(memberEmail)) {
-            // 세션에 저장된 memberId를 이용하여 회원(Member) 객체를 찾음
-            Member member = memberService.findMemberByEmail(memberEmail);
+    public void updatePost(Long boardId, BoardSaveRequestDTO boardSaveRequestDTO) {
 
-            // BoardPostDTO에 회원 객체를 설정
-            BoardPostResponseDTO boardPostResponseDTO = new BoardPostResponseDTO();
-            boardPostResponseDTO.setMember(member);
-            boardPostResponseDTO.setBoardTitle(boardSaveRequestDTO.getBoardTitle());
-            boardPostResponseDTO.setBoardContext(boardSaveRequestDTO.getBoardContext());
+        memberService
+                .findMemberById(boardSaveRequestDTO.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID 입니다."));
 
-            Board board = boardPostResponseDTO.toBoard(boardId, boardPostResponseDTO);
-            if (boardRepository.existsById(boardId)) {
-                boardRepository.save(board);
-            } else
-                throw new IllegalArgumentException("게시물이 없습니다.");
-        } else {// 로그아웃 상태라면
-            throw new IllegalArgumentException("로그인을 해주세요.");
-        }
-    }
+        Board post = boardRepository
+                .findById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시물입니다."));
 
-    /**
-     * 로그인 검증
-     */
-    public boolean validationLogin(String memberEmail) {
-
-        if (memberEmail != null) {
-            return true;
-        }
-//            return boardPostRequestDTO.toBoard(boardId);
-        // 예외 발생
-        return false;
+        // BoardService 클래스에 @Transactional이 있기 때문에 게시글이 최초에 저장될 때 영속성 컨텍스트 내부에 존재한다.
+        // 따라서, 수정을 할 때 update() 메서드만 사용해도 영속성 컨텍스트 내부에 있는 객체가 수정되고 DB에 자동 적용된다.
+        post.update(boardSaveRequestDTO);
+        boardRepository.save(post);
     }
 
     /**
      * 게시글 삭제
      */
-    public void deletePost(HttpServletRequest request, Long boardId) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
-
-        if (validationLogin(memberEmail)) {
-            // 게시물 존재 여부 확인
-            if (boardRepository.existsById(boardId)) {
-                boardRepository.deleteById(boardId);
-            } else {
-                throw new NoSuchElementException("존재하지 않는 게시물입니다.");
-            }
-        } else {
-            // 로그인 상태가 아닌 경우
-            throw new NoSuchElementException("로그인을 해주세요.");
-        }
+    public void deletePost(Long boardId) {
+        Board post = boardRepository.findById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시물입니다."));
+        boardRepository.delete(post);
     }
 
     /**
@@ -113,46 +80,43 @@ public class BoardService {
         List<Board> boards = boardRepository.findAll();
         List<BoardListResponseDTO> boardList = new ArrayList<>();
         for (Board board : boards) {
+            // toBoardListResponseDTO부분 Mapper로 교체
             boardList.add(Board.toBoardListResponseDTO(board));
         }
         return boardList;
     }
-//    public List<String> showListFromTitle(String boardTitle) {
-//        return boardRepository.findBoardListFromTitle(boardTitle);
-//    }
-//
-//    public List<String> showListFromEmail(String memberEmail) {
-//        return boardRepository.findBoardListFromEmail(memberEmail);
-//    }
 
     /**
      * 게시글 상세 조회
      */
     public List<BoardGetDetailResponseDTO> getPostByTitle(String boardTitle) throws NoSuchObjectException {
 
-        List<Board> posts = boardRepository.findByBoardTitle(boardTitle);
-        if (!posts.isEmpty()) {
-            List<BoardGetDetailResponseDTO> list = new ArrayList<>();
-            for (Board board : posts) {
-                list.add(Board.toBoardShowDetailDTO(board));
-            }
-            return list;
-        }
-        throw new NoSuchObjectException("게시글이 존재하지 않습니다.");
+        List<Board> posts = boardRepository
+                .findByBoardTitle(boardTitle)
+                .orElseThrow(() -> new NoSuchObjectException("게시물이 존재하지 않습니다."));
 
+        List<BoardGetDetailResponseDTO> list = new ArrayList<>();
+        for (Board post : posts) {
+            list.add(Board.toBoardShowDetailDTO(post));
+        }
+        return list;
     }
 
     public List<BoardGetDetailResponseDTO> getPostByEmail(String memberEmail) throws NoSuchObjectException {
-        Member member = memberRepository.findByMemberEmail(memberEmail).get();
-        List<Board> posts = boardRepository.findByMember(member);
-        if (!posts.isEmpty()) {
-            List<BoardGetDetailResponseDTO> list = new ArrayList<>();
-            for (Board board : posts) {
-                list.add(Board.toBoardShowDetailDTO(board));
-            }
-            return list;
+
+        Member member = memberRepository
+                .findByMemberEmail(memberEmail)
+                .orElseThrow(() -> new NoSuchObjectException("존재하지 않는 이메일입니다."));
+
+        List<Board> posts = boardRepository
+                .findByMember(member)
+                .orElseThrow(() -> new NoSuchObjectException("게시물이 존재하지 않습니다."));
+
+        List<BoardGetDetailResponseDTO> list = new ArrayList<>();
+        for (Board post : posts) {
+            list.add(Board.toBoardShowDetailDTO(post));
         }
-        throw new NoSuchObjectException("게시글이 존재하지 않습니다.");
+        return list;
     }
 
     // email로 member 객체를 찾아서 return

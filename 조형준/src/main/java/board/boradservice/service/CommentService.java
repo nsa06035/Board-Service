@@ -1,16 +1,21 @@
 package board.boradservice.service;
 
+import board.boradservice.domian.Board;
+import board.boradservice.domian.Comment;
+import board.boradservice.domian.Member;
+import board.boradservice.dto.request.CommentCreateRequestDTO;
+import board.boradservice.dto.response.CommentCreateResponseDTO;
+import board.boradservice.repository.CommentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import techeerpartners.TecheerPartnersBoardProject.domian.Board;
-import techeerpartners.TecheerPartnersBoardProject.domian.Comment;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
-import techeerpartners.TecheerPartnersBoardProject.dto.request.CommentCreateRequestDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.CommentCreateResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.repository.CommentRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
+
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CommentService {
 
@@ -21,83 +26,71 @@ public class CommentService {
     /**
      * 댓글 작성
      */
-    public void createComment(HttpServletRequest request, CommentCreateRequestDTO commentCreateRequestDTO) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
+    public void createComment(CommentCreateRequestDTO commentCreateRequestDTO) {
 
-        // 로그인 상태라면
-        if (memberEmail != null) {
-            // 세션에 저장된 memberId를 이용하여 회원(Member) 객체를 찾음
-            Member member = memberService.findMemberByEmail(memberEmail);
+        Member member = validationMember(commentCreateRequestDTO.getMemberId());
+        Board board = validationBoard(commentCreateRequestDTO.getBoardId());
 
-            Board board = boardService.findPostById(commentCreateRequestDTO.getBoardId()).get();
+        CommentCreateResponseDTO commentCreateResponseDTO = new CommentCreateResponseDTO(commentCreateRequestDTO.getCommentContext(), board, member);
 
-            // CommentSaveDTOd 회원 객체를 설정에 회원 객체를 설정
-            CommentCreateResponseDTO commentCreateResponseDTO = new CommentCreateResponseDTO();
-            commentCreateResponseDTO.setMember(member);
-            commentCreateResponseDTO.setBoard(board);
-            commentCreateResponseDTO.setCommentContext(commentCreateRequestDTO.getCommentContext());
+        // commentContext, board, member가 들어 있는 Comment 객체를 생성(id는 들어있지 않음 -> 자동 생성)
+        Comment comment = commentCreateResponseDTO.toCommentForSave(commentCreateResponseDTO);
 
-            // commentContext, board, member가 들어 있는 Comment 객체를 생성(id는 들어있지 않음 -> 자동 생성)
-            Comment comment = commentCreateResponseDTO.toCommentForSave(commentCreateResponseDTO);
+        commentRepository.save(comment);
 
-            commentRepository.save(comment);
-        } else {
-            throw new IllegalArgumentException("로그인 해주세요.");
-        }
+        throw new IllegalArgumentException("로그인 해주세요.");
     }
 
     /**
      * 댓글 수정
      */
-    public void updateComment(HttpServletRequest request, Long commentId, CommentCreateRequestDTO commentCreateRequestDTO) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
+    public void updateComment(Long commentId, CommentCreateRequestDTO commentCreateRequestDTO) {
 
-        // 로그인 상태라면
-        if (memberEmail != null) {
-            if (commentRepository.existsById(commentId)) {
-                // 세션에 저장된 memberId를 이용하여 회원(Member) 객체를 찾음
-                Member member = memberService.findMemberByEmail(memberEmail);
+        Member member = validationMember(commentCreateRequestDTO.getMemberId());
+        Board board = validationBoard(commentCreateRequestDTO.getBoardId());
+        Comment comment = validationComment(commentId);
 
-                Board board = boardService.findPostById(commentCreateRequestDTO.getBoardId()).get();
+        CommentCreateResponseDTO commentCreateResponseDTO = new CommentCreateResponseDTO(commentId, commentCreateRequestDTO.getCommentContext(), board, member);
 
-                // CommentSaveDTOd 회원 객체를 설정에 회원 객체를 설정
-                CommentCreateResponseDTO commentCreateResponseDTO = new CommentCreateResponseDTO();
-                commentCreateResponseDTO.setMember(member);
-                commentCreateResponseDTO.setBoard(board);
-                commentCreateResponseDTO.setCommentContext(commentCreateRequestDTO.getCommentContext());
-
-                Comment comment = commentCreateResponseDTO.toComment(commentId, commentCreateResponseDTO);
-                commentRepository.save(comment);
-            } else {
-                throw new IllegalArgumentException("존재하지 않는 댓글입니다..");
-            }
-        } else {
-            throw new IllegalArgumentException("로그인을 해주세요.");
-        }
+        comment.update(commentCreateResponseDTO);
+        commentRepository.save(comment);
     }
 
     /**
      * 댓글 삭제
      */
-    public void deleteComment(HttpServletRequest request, Long boardId, Long commentId) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
+    public void deleteComment(Long boardId, Long commentId, Long memberId) {
 
-        // 로그인 검증
-        if (memberEmail != null) {
-            // 게시판이 존재 검증
-            if (boardService.findPostById(boardId).isPresent()) {
-                // 댓글이 존재 검증
-                if (commentRepository.existsById(commentId)) {
-                    commentRepository.deleteById(commentId);
-                } else {
-                    throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
-                }
-            } else {
-                throw new IllegalArgumentException("게시판이 존재하지 않습니다.");
-            }
-        } else {
-            // 로그인 상태가 아닌 경우
-            throw new IllegalArgumentException("로그인을 해주세요.");
-        }
+        memberService
+                .findMemberById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않은 멤버입니다."));
+        boardService
+                .findPostById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시물입니다."));
+        commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 댓글입니다."));
+
+        commentRepository.deleteById(commentId);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    private Member validationMember(Long memberId) {
+        return memberService
+                .findMemberById(memberId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않은 멤버입니다."));
+    }
+
+    private Board validationBoard(Long boardId) {
+        return boardService
+                .findPostById(boardId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 게시물입니다."));
+    }
+
+    private Comment validationComment(Long commentId) {
+        return commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 댓글입니다."));
     }
 }

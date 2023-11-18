@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CommentCreateRequestDTO {
     private Long boardId;
+    private Long memberId;
     private String commentContext;
-
 }

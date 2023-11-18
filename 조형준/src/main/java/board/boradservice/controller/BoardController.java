@@ -1,15 +1,15 @@
 package board.boradservice.controller;
 
+import board.boradservice.dto.request.BoardSaveRequestDTO;
+import board.boradservice.dto.response.BoardGetDetailResponseDTO;
+import board.boradservice.dto.response.BoardListResponseDTO;
+import board.boradservice.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import techeerpartners.TecheerPartnersBoardProject.dto.request.BoardSaveRequestDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardPostResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardListResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardGetDetailResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.service.BoardService;
+
 
 import java.rmi.NoSuchObjectException;
 import java.util.List;
@@ -26,28 +26,19 @@ public class BoardController {
      * 게시글 생성
      */
     @PostMapping("/")
-    public ResponseEntity<String> createPost(HttpServletRequest request, @ModelAttribute BoardSaveRequestDTO boardSaveRequestDTO) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
-        try {
-            boardService.createPost(memberEmail, boardSaveRequestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("게시물 작성 성공");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+    public ResponseEntity<String> createPost(@RequestBody BoardSaveRequestDTO boardSaveRequestDTO) {
+        boardService.createPost(boardSaveRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("게시물 작성 성공");
+
     }
 
     /**
      * 게시글 수정
      */
     @PutMapping("/{boardId}")
-    public ResponseEntity<String> updatePost(HttpServletRequest request, @PathVariable Long boardId, @ModelAttribute BoardSaveRequestDTO boardSaveRequestDTO) {
-        String memberEmail = (String) request.getSession().getAttribute("memberEmail");
-        try {
-            boardService.updatePost(memberEmail, boardId, boardSaveRequestDTO);
-            return ResponseEntity.status(HttpStatus.OK).body("게시물 수정 성공");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+    public ResponseEntity<String> updatePost(@PathVariable Long boardId, @RequestBody BoardSaveRequestDTO boardSaveRequestDTO) {
+        boardService.updatePost(boardId, boardSaveRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body("게시물 수정 성공");
     }
 
     /**
@@ -55,14 +46,10 @@ public class BoardController {
      * 게시글 삭제를 위해서는 boardId만 있으면 되므로 인자로 boardId만 받는다.
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deletePost(HttpServletRequest request, @PathVariable Long boardId) {
+    public ResponseEntity<String> deletePost(@PathVariable Long boardId) {
+        boardService.deletePost(boardId);
+        return ResponseEntity.status(HttpStatus.OK).body("게시물 삭제 성공");
 
-        try {
-            boardService.deletePost(request, boardId);
-            return ResponseEntity.status(HttpStatus.OK).body("게시물 삭제 성공");
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
     }
 
     /**
@@ -80,20 +67,32 @@ public class BoardController {
      */
     @GetMapping("/boardTitle/{boardTitle}")
     public ResponseEntity<List<BoardGetDetailResponseDTO>> getPostByTitle(@PathVariable String boardTitle) throws NoSuchObjectException {
+        return ResponseEntity.status(HttpStatus.OK).body(boardService.getPostByTitle(boardTitle));
 
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(boardService.getPostByTitle(boardTitle));
-        } catch (NoSuchObjectException e) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); //
-        }
     }
 
-    @GetMapping("/memberEmail/{memberEmail}")
-    public ResponseEntity<List<BoardGetDetailResponseDTO>> getPostByEmail(@PathVariable String memberEmail) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(boardService.getPostByEmail(memberEmail));
-        } catch (NoSuchObjectException e) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+    //-----------------------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * IllegalArgumentException을 처리하는 메서드
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
+    /**
+     * NoSuchElementException을 처리하는 메서드
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
+    /**
+     * NoSuchObjectException을 처리하는 메서드 (예외 타입이 잘못되었다면 예시 기반으로 수정 필요)
+     */
+    @ExceptionHandler(NoSuchObjectException.class)
+    public ResponseEntity<String> handleNoSuchObjectException(NoSuchObjectException e) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
     }
 }

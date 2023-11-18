@@ -1,12 +1,15 @@
 package board.boradservice.repository;
 
+import board.boradservice.domian.Board;
+import board.boradservice.domian.Member;
 import jakarta.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import techeerpartners.TecheerPartnersBoardProject.domian.Board;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
+
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -14,9 +17,9 @@ import java.util.List;
 @Transactional
 public interface BoardRepository extends JpaRepository<Board, Long> { // Member : 엔티티 타입 / Long : 엔티티 식별자
 
-    public List<Board> findByBoardTitle(String boardTitle);
+    public Optional<List<Board>> findByBoardTitle(String boardTitle);
 
-    public List<Board> findByMember(Member member);
+    public Optional<List<Board>> findByMember(Member member);
 
 //    public List<Board> findPostByMemberEmail(String memberEmail);
 

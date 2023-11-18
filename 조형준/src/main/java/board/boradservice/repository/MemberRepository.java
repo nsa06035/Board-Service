@@ -2,10 +2,10 @@ package board.boradservice.repository;
 
 
 
+import board.boradservice.domian.Member;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
 
 import java.util.Optional;
 
@@ -25,6 +25,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> { // Membe
 //    Optional<Member> findByEmailAndPassword(String memberEmail, String memberPassword);
 
     Optional<Member> findByMemberEmail(String memberEmail);
+
+    Optional<Member> findByMemberEmailAndPassword(String memberEmail, String memberPassword);
 
 //    Member findByMemberId(Long memberId);
 

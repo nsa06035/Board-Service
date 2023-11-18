@@ -1,8 +1,9 @@
 package board.boradservice.dto.response;
+import board.boradservice.domian.Board;
+import board.boradservice.domian.Comment;
+import board.boradservice.domian.Member;
 import lombok.*;
-import techeerpartners.TecheerPartnersBoardProject.domian.Board;
-import techeerpartners.TecheerPartnersBoardProject.domian.Comment;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
+
 
 import java.util.List;
 
@@ -18,6 +19,12 @@ public class BoardPostResponseDTO {
     // getsession을 해서 사용자 정보르 받아온 후  아래 member 객체에 넣어주면 됨
     private Member member;
     private List<Comment> comment;
+
+    public BoardPostResponseDTO(String boardTitle, String boardContext, Member member) {
+        this.boardTitle = boardTitle;
+        this.boardContext = boardContext;
+        this.member = member;
+    }
 
     //    DTO -> Entity
 //    public static Board toBoard(BoardPostResponseDTO boardSaveDTO) {

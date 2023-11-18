@@ -1,14 +1,15 @@
 package board.boradservice.controller;
 
+import board.boradservice.dto.request.MemberLoginRequestDTO;
+import board.boradservice.dto.request.MemberSignupRequestDTO;
+import board.boradservice.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import techeerpartners.TecheerPartnersBoardProject.dto.request.MemberLoginRequestDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.request.MemberSignupRequestDTO;
-import techeerpartners.TecheerPartnersBoardProject.service.MemberService;
 
+import java.rmi.NoSuchObjectException;
 import java.util.NoSuchElementException;
 
 // @RestController : Json 반환
@@ -26,7 +27,7 @@ class MemberController {
      * 회원가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<String> signupUser(@ModelAttribute MemberSignupRequestDTO memberSignupRequestDTO) {
+    public ResponseEntity<String> signupUser(@RequestBody MemberSignupRequestDTO memberSignupRequestDTO) {
         memberService.signupUser(memberSignupRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 성공");
     }
@@ -35,25 +36,25 @@ class MemberController {
      * 로그인
      */
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(HttpServletRequest request, @ModelAttribute MemberLoginRequestDTO memberLoginRequestDTO) {
-        try {
-            memberService.loginUser(memberLoginRequestDTO);
-            // ★★★★★★★★★★★★ memberLoginDTO니깐 memberId가 없이 이 바보놈아 이걸 햇갈리냐 진짜 ★★★★★★★★★★★
-            request.getSession().setAttribute("memberEmail", memberLoginRequestDTO.getMemberEmail());
-            // 로그인 성공 시
-            return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
-        } catch (IllegalArgumentException | NoSuchElementException e) {
-            // 로그인 실패 시
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
+    public ResponseEntity<String> loginUser(@RequestBody MemberLoginRequestDTO memberLoginRequestDTO) {
+        memberService.loginUser(memberLoginRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
+    }
+
+    // ------------------------- ExceptionHandler -------------------------
+    /**
+     * IllegalArgumentException을 처리하는 메서드
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
+    /**
+     * NoSuchElementException을 처리하는 메서드
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 }
-
-
-
-
-
-
-
-
-

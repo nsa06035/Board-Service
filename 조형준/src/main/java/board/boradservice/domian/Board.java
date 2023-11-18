@@ -1,10 +1,12 @@
 package board.boradservice.domian;
 
+import board.boradservice.dto.request.BoardSaveRequestDTO;
+import board.boradservice.dto.response.BoardGetDetailResponseDTO;
+import board.boradservice.dto.response.BoardListResponseDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardListResponseDTO;
-import techeerpartners.TecheerPartnersBoardProject.dto.response.BoardGetDetailResponseDTO;
+
 
 import java.util.*;
 
@@ -34,6 +36,11 @@ public class Board {
     // 그러나 Board DB 테이블에 Comment_id가 없음
     @OneToMany(mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
+
+    public void update(BoardSaveRequestDTO boardSaveRequestDTO) {
+        this.boardTitle = boardSaveRequestDTO.getBoardTitle();
+        this.boardContext = boardSaveRequestDTO.getBoardContext();
+    }
 
     public static BoardListResponseDTO toBoardListResponseDTO(Board board) {
         return new BoardListResponseDTO(board.getBoardTitle(), board.getBoardContext(), board.getMember().getMemberEmail());

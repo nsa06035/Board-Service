@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
 
 @Getter
 @Setter
@@ -13,5 +12,5 @@ import techeerpartners.TecheerPartnersBoardProject.domian.Member;
 public class BoardSaveRequestDTO {
     private String boardTitle;
     private String boardContext;
-
+    private Long memberId;
 }

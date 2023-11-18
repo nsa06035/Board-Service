@@ -1,9 +1,11 @@
 package board.boradservice.domian;
 
+import board.boradservice.dto.request.BoardSaveRequestDTO;
+import board.boradservice.dto.request.CommentCreateRequestDTO;
+import board.boradservice.dto.response.CommentCreateResponseDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity // DB 테이블(엔티티)에 매핑(JPA 기능)(장고 model과 같은 기능)
 @Getter
@@ -27,6 +29,10 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Member member;
+
+    public void update(CommentCreateResponseDTO commentCreateResponseDTO) {
+        this.context = commentCreateResponseDTO.getCommentContext();
+    }
 
     public Comment(final Long id, final String context, final Board board, final Member member) {
         this.id = id;

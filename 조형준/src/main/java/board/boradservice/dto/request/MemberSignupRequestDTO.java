@@ -1,8 +1,9 @@
 package board.boradservice.dto.request;
 
 
+import board.boradservice.domian.Member;
 import lombok.*;
-import techeerpartners.TecheerPartnersBoardProject.domian.Member;
+
 
 @Getter
 @Setter
