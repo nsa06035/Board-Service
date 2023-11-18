@@ -1,7 +1,6 @@
 package board.spring.service;
 
 import board.spring.domain.Board;
-import board.spring.domain.Comment;
 import board.spring.domain.Member;
 import board.spring.dto.request.BoardSaveRequest;
 import board.spring.dto.response.BoardDetailResponse;
@@ -29,9 +28,9 @@ public class BoardService {
     private final MemberRepository memberRepository;
 
     // 게시글 저장
-    public void savePost(Long memberId,BoardSaveRequest request) {
-        Optional<Member> existingMember = memberRepository.findById(memberId);
-        Member member = existingMember.orElseThrow(() -> new IllegalArgumentException("Invalid"));
+    public void savePost(BoardSaveRequest request) {
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Member ID"));
         Board board = request.toEntity(member);
         boardRepository.save(board);
     }
@@ -53,47 +52,44 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
+
+
+
     // 특정 회원이 작성한 게시글 조회
     public ResponseEntity<List<BoardListResponse>> findPostListByEmail(Long memberId) {
-        Optional<Member> optionalMember = memberRepository.findById(memberId);
-        if (optionalMember.isPresent()) {
-            Member findMember = optionalMember.get();
-
-            List<Board> postList = boardRepository.findAllListByMemberId(findMember.getId());
-
-            List<BoardListResponse> responseList = postList.stream()
-                    .map(BoardListResponse::from)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(responseList);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        return memberRepository.findById(memberId)
+                .map(findMember -> {
+                    List<Board> postList = boardRepository.findAllListByMemberId(findMember.getId());
+                    List<BoardListResponse> responseList = postList.stream()
+                            .map(BoardListResponse::from)
+                            .collect(Collectors.toList());
+                    return ResponseEntity.ok(responseList);
+                })
+                .orElse(ResponseEntity.noContent().build());
     }
 
-
-    // 게시글 상세 조회 (제목, 내용, 회원이름, 댓글)을 포함
-    public List<BoardDetailResponse> findDetailList(Long boardId) {
-        Optional<Board> boardOptional = boardRepository.findById(boardId);
-
-        return boardOptional.map(board -> Collections.singletonList(BoardDetailResponse.from(board)))
-                .orElse(Collections.emptyList());
+    // 게시글 상세 조회
+    public Optional<BoardDetailResponse> findDetail(Long boardId) {
+        return boardRepository.findById(boardId)
+                .map(BoardDetailResponse::from);
     }
 
 
     // 게시물 수정
     public void updateBoard(Long boardId, BoardSaveRequest request) {
-        Optional<Board> existingComment = boardRepository.findById(boardId);
-        Board board = existingComment.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "board not found"));
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "board not found"));
         board.update(request);
-        boardRepository.save(board);
+//        boardRepository.save(board);
     }
 
 
     // 게시글 삭제
     public void deletePost(Long boardId) {
-        Optional<Board> existingComment = boardRepository.findById(boardId);
-        Board existingBoard = boardRepository.findById(boardId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
-        boardRepository.delete(existingBoard);
+        boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Board not found"));
+
+        boardRepository.deleteById(boardId);
     }
 }
 
