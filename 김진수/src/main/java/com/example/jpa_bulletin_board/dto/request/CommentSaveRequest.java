@@ -14,6 +14,8 @@ import lombok.Setter;
 public class CommentSaveRequest {
     private String comments;
     private String author;
+    private Long memberId;
+    private Long postId;
 
     public Comment toEntity(Member member, Post post) {
         return new Comment(comments, author, post, member);

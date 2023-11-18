@@ -2,7 +2,6 @@ package com.example.jpa_bulletin_board.controller;
 
 import com.example.jpa_bulletin_board.dto.request.CommentSaveRequest;
 import com.example.jpa_bulletin_board.dto.request.CommentUpdateRequest;
-import com.example.jpa_bulletin_board.dto.request.MemberSaveRequest;
 import com.example.jpa_bulletin_board.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,36 +15,46 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    // postId, memberId를 dto로 받으면 어떨까?
+    // memberId가 DB에 없는 상황이라면 throw로 예외를 발생시키는게 맞는지?
+    // 아니면
     /**
      * 댓글 작성
      */
     @PostMapping
-    public ResponseEntity<Void> saveComment(
-            CommentSaveRequest commentSaveRequest,
-            @RequestParam("postId") Long postId,
-            @RequestParam("memberId") Long memberId) {
-        commentService.saveComment(commentSaveRequest, postId, memberId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<String> saveComment(
+            @RequestBody CommentSaveRequest commentSaveRequest) {
+        if (commentService.saveComment(commentSaveRequest)) {
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("회원이 존재하지 않거나 게시글이 존재하지 않습니다.");
     }
 
     /**
      * 댓글 수정
      */
     @PutMapping("/{commentId}")
-    public ResponseEntity<Void> updateComment(
+    public ResponseEntity<String> updateComment(
             @PathVariable("commentId") Long commentId,
             @RequestBody CommentUpdateRequest commentUpdateRequest) {
-        commentService.updateComment(commentId, commentUpdateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        if (commentService.updateComment(commentUpdateRequest, commentId)) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("댓글이 존재하지 않습니다.");
     }
 
     /**
      * 댓글 삭제
      */
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(
+    public ResponseEntity<String> deleteComment(
             @PathVariable("commentId") Long commentId) {
-        commentService.deleteComment(commentId);
+        if (commentService.deleteComment(commentId)) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("댓글이 존재하지 않습니다.");
     }
 }

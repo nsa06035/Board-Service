@@ -23,10 +23,15 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
 
+    //memberId dto로 넣어서 전달해보기
+    //postId dto로 넣어서 전달해보기
     /**
      * 댓글 작성
      */
-    public void saveComment(CommentSaveRequest commentSaveRequest, Long postId, Long memberId) {
+    public boolean saveComment(CommentSaveRequest commentSaveRequest) {
+        Long memberId = commentSaveRequest.getMemberId();
+        Long postId = commentSaveRequest.getPostId();
+
         Optional<Post> findPost = postRepository.findById(postId);
         Optional<Member> findMember = memberRepository.findById(memberId);
 
@@ -37,33 +42,45 @@ public class CommentService {
             //comment.setPost(post);
             //comment.setMember(member);
             commentRepository.save(comment);
+            return true;
         } else {
-            throw new IllegalArgumentException("ID에 해당하는 댓글 찾을 수 없습니다." + postId);
+//            throw new IllegalArgumentException("ID에 해당하는 댓글 찾을 수 없습니다." + postId);
+            return false;
         }
     }
 
-    /**
-     * 댓글 수정
-     */
     // updateRequest를 따로 만들어야함
     // 수정인데 save 하는게 이상해 보일 수 있음
     // 수정 삭제는 204(No Content)로 보내야함 -> 찾아보기
-    public void updateComment(Long commentId, CommentUpdateRequest commentUpdateRequest) {
+    // save 없어도 수정 가능함
+
+    //commentId dto로 넣어서 보내보기
+    /**
+     * 댓글 수정
+     */
+    public boolean updateComment(CommentUpdateRequest commentUpdateRequest, Long commentId) {
         Optional<Comment> findComment = commentRepository.findById(commentId);
 
         if (findComment.isPresent()) {
             Comment comment = findComment.get();
             comment.setComments(commentUpdateRequest.getComments());
-            commentRepository.save(comment);
-        } else {
-            throw new IllegalArgumentException("ID에 해당하는 댓글을 찾을 수 없습니다." + commentId);
+//            commentRepository.save(comment);
+            return true;
         }
+//        throw new IllegalArgumentException("ID에 해당하는 댓글을 찾을 수 없습니다." + commentId);
+        return false;
     }
 
     /**
      * 댓글 삭제
      */
-    public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
+    public boolean deleteComment(Long commentId) {
+        Optional<Comment> findComment = commentRepository.findById(commentId);
+
+        if (findComment.isPresent()) {
+            commentRepository.deleteById(commentId);
+            return true;
+        }
+        return false;
     }
 }
