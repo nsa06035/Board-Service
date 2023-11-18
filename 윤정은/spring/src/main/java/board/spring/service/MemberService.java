@@ -23,8 +23,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public void loginMember(MemberLoginRequest request) {
-        Optional<Member> optionalMember = memberRepository.findByEmailAndPassword(request.getEmail(), request.getPassword());
-        Member member = optionalMember.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+    public boolean loginMember(MemberLoginRequest request) {
+        return memberRepository.findByEmailAndPassword(request.getEmail(), request.getPassword())
+                .isPresent();
     }
 }

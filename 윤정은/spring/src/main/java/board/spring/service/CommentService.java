@@ -30,10 +30,11 @@ public class CommentService {
 
     // 댓글 작성
     public void saveComment(Long memberId,Long boardId,CommentSaveRequest request) {
-        Optional<Member> existingMember = memberRepository.findById(memberId);
-        Optional<Board> existingBoard = boardRepository.findById(boardId);
-        Member member = existingMember.orElseThrow(() -> new IllegalArgumentException("member Invalid"));
-        Board board = existingBoard.orElseThrow(() -> new IllegalArgumentException("board Invalid"));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Member ID"));
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Board ID"));
 
         Comment newComment = request.toEntity(member,board);
         commentRepository.save(newComment);
@@ -42,18 +43,18 @@ public class CommentService {
 
     // 댓글 수정
     public void updateComment(CommentUpdateRequest request, Long commentId) {
-        Optional<Comment> existingComment = commentRepository.findById(commentId);
-        Comment comment = existingComment.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
 
         Comment updatedComment = request.toEntity();
-        commentRepository.save(updatedComment);
+//        commentRepository.save(updatedComment);
     }
 
 
     // 댓글 삭제 : 응답값 추가하기
     public void deleteComment(Long commentId) {
-        Optional<Comment> optionalComment = commentRepository.findById(commentId);
-        Comment comment = optionalComment.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+        commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
         commentRepository.deleteById(commentId);
     }
 

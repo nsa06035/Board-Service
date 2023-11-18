@@ -14,7 +14,6 @@ public class BoardSaveRequest {
     private String content;
 
     private Long memberId;
-    private Member member;
 
     public Board toEntity(Member member){
         return new Board(title, content, member);

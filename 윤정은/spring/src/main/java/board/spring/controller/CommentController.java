@@ -17,11 +17,10 @@ public class CommentController {
     private final CommentService commentService;
 
     // 댓글 작성
-    // POST /api/comments
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @Valid @RequestParam Long memberId,
-            @Valid @RequestParam Long boardId,
+            @RequestParam Long memberId,
+            @RequestParam Long boardId,
             @RequestBody CommentSaveRequest request) {
 
         commentService.saveComment(memberId, boardId, request);
@@ -29,7 +28,6 @@ public class CommentController {
     }
 
     // 댓글 수정
-    // PUT /api/comments/1
     @PutMapping("{commentId}")
     public ResponseEntity<Void> updateComment(
             @PathVariable Long commentId,
@@ -39,7 +37,6 @@ public class CommentController {
     }
 
     // 댓글 삭제
-    // DELETE /api/comments/1
     @DeleteMapping("{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
