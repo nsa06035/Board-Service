@@ -9,11 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RequestMapping("/api/comments")
 public class CommentController {
 
     private final CommentService commentService;
+
+    // 생성자 주입 사용
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     // postId, memberId를 dto로 받으면 어떨까?
     // memberId가 DB에 없는 상황이라면 throw로 예외를 발생시키는게 맞는지?

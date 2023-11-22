@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor
+//@Getter @Setter
+//@NoArgsConstructor
 public class Comment {
 
     @Id @GeneratedValue
@@ -23,15 +23,55 @@ public class Comment {
     private Post post; // 게시글
 
     @Column(nullable = false)
-    private String author;
-
-    @Column(nullable = false)
     private String comments;
 
-    public Comment(final String comments, final String author, final Post post, final Member member) {
+    public Comment(final String comments, final Post post, final Member member) {
         this.comments = comments;
-        this.author = author;
         this.post = post;
         this.member = member;
+    }
+
+    // 기본 생성자
+    public Comment() {
+    }
+
+    // id의 Getter
+    public Long getId() {
+        return id;
+    }
+
+    // id의 Setter
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // member의 Getter
+    public Member getMember() {
+        return member;
+    }
+
+    // member의 Setter
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    // post의 Getter
+    public Post getPost() {
+        return post;
+    }
+
+    // post의 Setter
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    // comments의 Getter
+    public String getComments() {
+        return comments;
+    }
+
+    // comments의 Setter
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

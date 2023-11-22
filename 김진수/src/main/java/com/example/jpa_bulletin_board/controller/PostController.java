@@ -14,11 +14,16 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;
+
+    // 생성자 주입 사용
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
 
     /**
      * 게시글 작성

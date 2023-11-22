@@ -9,11 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
+
+    // 생성자 주입 사용
+    public MemberController(MemberService memberService) {
+        this.memberService = memberService;
+    }
 
     /**
      * 회원 가입

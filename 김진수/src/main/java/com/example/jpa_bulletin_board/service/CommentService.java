@@ -16,12 +16,19 @@ import java.util.Optional;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+
+    // 생성자 주입을 사용
+    public CommentService(CommentRepository commentRepository, MemberRepository memberRepository, PostRepository postRepository) {
+        this.commentRepository = commentRepository;
+        this.memberRepository = memberRepository;
+        this.postRepository = postRepository;
+    }
 
     //memberId dto로 넣어서 전달해보기
     //postId dto로 넣어서 전달해보기
